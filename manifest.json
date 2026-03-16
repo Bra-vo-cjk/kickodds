@@ -1,0 +1,17 @@
+{
+  "name": "KickOdds - Football Odds",
+  "short_name": "KickOdds",
+  "description": "Free & Premium Football Odds • Nairobi, Kenya",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#0a0a0a",
+  "theme_color": "#10b981",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/919/919831.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
