@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#10b981">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>KickOdds - Free & Premium Football Odds</title>
+  
+  <!-- PAYPAL SDK - REPLACE YOUR_CLIENT_ID_HERE WITH YOUR REAL CLIENT ID -->
+  <!-- Get it free at: https://developer.paypal.com/dashboard/applications/live (or Sandbox for testing) -->
+  <script src="https://www.paypal.com/sdk/js?client-id=YOUR_CLIENT_ID_HERE&currency=USD&intent=capture&enable-funding=venmo&disable-funding=card"></script>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+  <link rel="manifest" href="manifest.json">
+  
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+    .logo-font { font-family: 'Poppins', sans-serif; }
+    
+    .pitch-bg { 
+      background: linear-gradient(rgba(16,185,129,0.08), rgba(16,185,129,0.08)), #0a0a0a; 
+    }
+    .light-mode .pitch-bg { 
+      background: linear-gradient(rgba(16,185,129,0.15), rgba(16,185,129,0.15)), #f8fafc; 
+    }
+    
+    .match-card { 
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+    }
+    .match-card:hover { 
+      transform: translateY(-4px); 
+      box-shadow: 0 20px 25px -5px rgb(16 185 129 / 0.2); 
+    }
+    
+    .nav-active { 
+      border-top: 3px solid #10b981; 
+      color: #10b981; 
+    }
+    .odds-box { 
+      background: linear-gradient(135deg, #10b981, #059669); 
+    }
+    
+    /* Light mode overrides */
+    .light-mode .bg-zinc-900 { background-color: #f1f5f9 !important; color: #0f172a !important; }
+    .light-mode .bg-zinc-950 { background-color: #f8fafc !important; }
+    .light-mode .text-white { color: #0f172a !important; }
+    .light-mode .text-zinc-400 { color: #64748b !important; }
+    .light-mode .bg-zinc-800 { background-color: #e2e8f0 !important; }
+    .light-mode header { background-color: #e2e8f0 !important; border-color: #cbd5e1 !important; }
+    .light-mode .odds-box { color: white !important; }
+  </style>
+</head>
+<body class="bg-zinc-950 text-white pitch-bg min-h-screen transition-colors duration-300">
+
+  <!-- HEADER -->
+  <header class="sticky top-0 z-50 bg-zinc-900 border-b border-zinc-800 transition-colors">
+    <div class="max-w-xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 bg-emerald-500 rounded-2xl flex items-center justify-center text-2xl shadow-lg">⚽</div>
+        <div>
+          <span class="logo-font text-2xl font-bold tracking-tighter text-emerald-400">Kick</span>
+          <span class="logo-font text-2xl font-bold tracking-tighter">Odds</span>
+        </div>
+      </div>
+      
+      <div class="flex items-center gap-4">
+        <!-- Theme Toggle -->
+        <button onclick="toggleTheme()" id="theme-toggle" 
+                class="w-9 h-9 flex items-center justify-center text-xl transition-transform hover:rotate-12">
+          <i class="fa-solid fa-moon"></i>
+        </button>
+        
+        <div class="flex items-center gap-2 bg-zinc-800 rounded-3xl px-4 py-1 text-sm">
+          <img src="https://flagcdn.com/w40/ke.png" class="w-5 h-5 rounded-full"> 
+          <span class="font-medium">Nairobi</span>
+        </div>
+        
+        <button onclick="toggleNotifications()" class="relative w-9 h-9 flex items-center justify-center">
+          <i class="fa-solid fa-bell text-xl"></i>
+          <span class="absolute top-1 right-1 w-4 h-4 bg-red-500 rounded-full text-[10px] flex items-center justify-center">3</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <div class="max-w-xl mx-auto pb-20" id="main-content">
+
+    <!-- HOME SCREEN -->
+    <div id="screen-home" class="screen">
+      <div class="px-4 pt-6">
+        <div class="bg-gradient-to-r from-emerald-600 to-emerald-500 rounded-3xl p-6 text-center mb-8 shadow-2xl">
+          <p class="text-emerald-100 text-sm font-medium">TODAY'S FREE MATCHES</p>
+          <h1 class="text-4xl font-bold mt-1">Arsenal vs Man City</h1>
+          <p class="text-emerald-100 mt-2">15:00 • Premier League</p>
+          <div class="flex justify-center gap-4 mt-6">
+            <div class="odds-box text-white font-bold text-2xl w-24 py-3 rounded-2xl shadow-inner">2.45</div>
+            <div class="bg-white/10 text-white font-bold text-2xl w-24 py-3 rounded-2xl shadow-inner">3.10</div>
+            <div class="odds-box text-white font-bold text-2xl w-24 py-3 rounded-2xl shadow-inner">1.85</div>
+          </div>
+          <button onclick="switchTab(1)" 
+                  class="mt-6 bg-white text-emerald-600 font-semibold px-8 py-3 rounded-2xl text-lg shadow-xl hover:bg-emerald-100 transition">View All Free Odds →</button>
+        </div>
+
+        <h2 class="px-1 text-lg font-semibold mb-4 flex items-center gap-2">
+          <i class="fa-solid fa-fire text-orange-500"></i> Hot Free Matches Today
+        </h2>
+        
+        <div class="space-y-4 px-1">
+          <!-- Match 1 -->
+          <div onclick="showMatchDetail(this)" class="match-card bg-zinc-900 rounded-3xl p-5 flex gap-4 items-center">
+            <div class="flex-1">
+              <div class="flex items-center gap-3">
+                <img src="https://flagcdn.com/w40/ke.png" class="w-6 h-6 rounded">
+                <span class="font-semibold">Gor Mahia</span>
+              </div>
+              <div class="flex items-center gap-3 mt-3">
+                <img src="https://flagcdn.com/w40/ke.png" class="w-6 h-6 rounded">
+                <span class="font-semibold">AFC Leopards</span>
+              </div>
+            </div>
+            <div class="text-center">
+              <div class="text-xs text-emerald-400 font-medium">19:00</div>
+              <div class="mt-2 bg-emerald-500/10 text-emerald-400 text-[10px] font-bold px-3 py-1 rounded-3xl inline-block">FREE</div>
+            </div>
+            <div class="text-right">
+              <div class="odds-box text-xs font-bold px-4 py-2 rounded-2xl mb-2">1.90</div>
+              <div class="odds-box text-xs font-bold px-4 py-2 rounded-2xl mb-2">3.40</div>
+              <div class="odds-box text-xs font-bold px-4 py-2 rounded-2xl">4.20</div>
+            </div>
+          </div>
+
+          <!-- Match 2 -->
+          <div onclick="showMatchDetail(this)" class="match-card bg-zinc-900 rounded-3xl p-5 flex gap-4 items-center">
+            <div class="flex-1">
+              <div class="flex items-center gap-3">
+                <img src="https://flagcdn.com/w40/gb-eng.png" class="w-6 h-6 rounded">
+                <span class="font-semibold">Liverpool</span>
+              </div>
+              <div class="flex items-center gap-3 mt-3">
+                <img src="https://flagcdn.com/w40/gb-eng.png" class="w-6 h-6 rounded">
+                <span class="font-semibold">Chelsea</span>
+              </div>
+            </div>
+            <div class="text-center">
+              <div class="text-xs text-emerald-400 font-medium">17:30</div>
+              <div class="mt-2 bg-emerald-500/10 text-emerald-400 text-[10px] font-bold px-3 py-1 rounded-3xl inline-block">FREE</div>
+            </div>
+            <div class="text-right">
+              <div class="odds-box text-xs font-bold px-4 py-2 rounded-2xl mb-2">1.75</div>
+              <div class="odds-box text-xs font-bold px-4 py-2 rounded-2xl mb-2">3.80</div>
+              <div class="odds-box text-xs font-bold px-4 py-2 rounded-2xl">4.50</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FREE ODDS SCREEN -->
+    <div id="screen-free" class="screen hidden">
+      <div class="px-4 py-6">
+        <div class="flex justify-between items-center mb-6">
+          <h1 class="text-3xl font-bold">Free Odds</h1>
+          <div class="bg-emerald-500 text-xs font-bold px-5 py-2 rounded-3xl">LIVE • 8 matches</div>
+        </div>
+        <div id="free-matches-list" class="space-y-6"></div>
+      </div>
+    </div>
+
+    <!-- PREMIUM SCREEN -->
+    <div id="screen-premium" class="screen hidden">
+      <div class="px-4 py-6 text-center">
+        <div class="max-w-xs mx-auto">
+          <div class="bg-gradient-to-br from-yellow-400 to-amber-500 text-black rounded-3xl p-8 mb-8">
+            <i class="fa-solid fa-crown text-6xl mb-4"></i>
+            <h2 class="text-3xl font-bold">Premium Odds</h2>
+            <p class="text-lg mt-2">85% Win Rate • Expert Tips</p>
+          </div>
+
+          <div id="premium-locked" class="bg-zinc-900 rounded-3xl p-6 mb-8">
+            <div class="flex justify-center mb-4"><i class="fa-solid fa-lock text-5xl text-amber-400"></i></div>
+            <p class="text-xl font-semibold">Locked for Free Users</p>
+            <p class="text-zinc-400 mt-2">Subscribe with PayPal to unlock instantly</p>
+            
+            <button onclick="showPayPalModal()" 
+                    class="mt-8 w-full bg-emerald-500 hover:bg-emerald-600 transition text-white font-bold text-xl py-5 rounded-3xl shadow-2xl flex items-center justify-center gap-3">
+              <i class="fa-brands fa-paypal text-3xl"></i>
+              <span>Subscribe – $9.99/month</span>
+            </button>
+          </div>
+
+          <div id="premium-unlocked" class="hidden">
+            <div class="text-emerald-400 text-2xl font-bold mb-6">✅ Premium Unlocked!</div>
+            <div id="premium-matches" class="space-y-4"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROFILE SCREEN -->
+    <div id="screen-profile" class="screen hidden px-4 py-6">
+      <div class="text-center">
+        <div class="w-24 h-24 mx-auto bg-zinc-800 rounded-3xl flex items-center justify-center text-6xl mb-4">👤</div>
+        <h2 class="text-2xl font-bold">Jasper • Nairobi</h2>
+        <div id="premium-badge" class="inline-flex items-center gap-2 bg-emerald-500 text-white text-sm font-bold px-6 py-2 rounded-3xl mt-3">
+          <i class="fa-solid fa-crown"></i> FREE USER
+        </div>
+      </div>
+
+      <div class="mt-10 bg-zinc-900 rounded-3xl p-6 space-y-6">
+        <div class="flex justify-between items-center">
+          <span class="text-zinc-400">Subscription</span>
+          <span id="sub-status" class="text-emerald-400 font-bold">Free Forever</span>
+        </div>
+        <div class="h-px bg-zinc-700"></div>
+        <div onclick="showPayPalModal()" class="flex items-center justify-between cursor-pointer">
+          <span class="font-medium">Upgrade to Premium</span>
+          <i class="fa-solid fa-arrow-right text-emerald-400"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <nav class="fixed bottom-0 left-0 right-0 max-w-xl mx-auto bg-zinc-900 border-t border-zinc-700 transition-colors">
+    <div class="flex text-xs font-medium">
+      <button onclick="switchTab(0)" class="nav-active flex-1 py-4 flex flex-col items-center gap-1">
+        <i class="fa-solid fa-house text-xl"></i>
+        <span>Home</span>
+      </button>
+      <button onclick="switchTab(1)" class="flex-1 py-4 flex flex-col items-center gap-1 text-zinc-400">
+        <i class="fa-solid fa-list text-xl"></i>
+        <span>Free</span>
+      </button>
+      <button onclick="switchTab(2)" class="flex-1 py-4 flex flex-col items-center gap-1 text-zinc-400">
+        <i class="fa-solid fa-crown text-xl"></i>
+        <span>Premium</span>
+      </button>
+      <button onclick="switchTab(3)" class="flex-1 py-4 flex flex-col items-center gap-1 text-zinc-400">
+        <i class="fa-solid fa-user text-xl"></i>
+        <span>Profile</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- REAL PAYPAL MODAL -->
+  <div id="paypal-modal" class="hidden fixed inset-0 bg-black/80 flex items-end z-[9999]">
+    <div class="bg-white text-black w-full max-w-xl mx-auto rounded-t-3xl p-8">
+      <div class="flex justify-between items-center mb-6">
+        <h3 class="text-2xl font-bold">PayPal Premium Subscription</h3>
+        <button onclick="hidePayPalModal()" class="text-3xl">×</button>
+      </div>
+      
+      <div class="text-center py-6">
+        <div class="text-5xl font-bold text-emerald-600">$9.99</div>
+        <div class="text-sm text-zinc-500">per month • Cancel anytime</div>
+      </div>
+
+      <!-- REAL PAYPAL BUTTON WILL APPEAR HERE -->
+      <div id="paypal-button-container" class="min-h-[50px]"></div>
+      
+      <p class="text-center text-xs text-zinc-400 mt-6">🔒 Secure • Instant unlock after payment</p>
+    </div>
+  </div>
+
+  <script>
+    // Render Free Matches
+    function renderFreeMatches() {
+      const matches = [
+        { league: "Kenyan Premier League", team1: "Gor Mahia", team2: "AFC Leopards", time: "19:00", odds: ["1.90", "3.40", "4.20"] },
+        { league: "Premier League", team1: "Liverpool", team2: "Chelsea", time: "17:30", odds: ["1.75", "3.80", "4.50"] },
+        { league: "La Liga", team1: "Real Madrid", team2: "Atletico Madrid", time: "21:00", odds: ["2.10", "3.30", "3.60"] }
+      ];
+      const container = document.getElementById('free-matches-list');
+      container.innerHTML = '';
+      matches.forEach(match => {
+        const div = document.createElement('div');
+        div.className = 'match-card bg-zinc-900 rounded-3xl p-5';
+        div.innerHTML = `
+          <div class="flex justify-between items-start">
+            <div>
+              <div class="text-emerald-400 text-xs font-medium">${match.league}</div>
+              <div class="font-semibold mt-3">${match.team1}</div>
+              <div class="font-semibold">${match.team2}</div>
+            </div>
+            <div class="text-right">
+              <div class="text-xs text-emerald-400">${match.time}</div>
+              <div class="flex gap-2 mt-4">
+                <div class="odds-box text-xs px-5 py-3 rounded-2xl text-white">${match.odds[0]}</div>
+                <div class="odds-box text-xs px-5 py-3 rounded-2xl text-white">${match.odds[1]}</div>
+                <div class="odds-box text-xs px-5 py-3 rounded-2xl text-white">${match.odds[2]}</div>
+              </div>
+            </div>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    // Render Premium Matches
+    function renderPremiumMatches() {
+      const container = document.getElementById('premium-matches');
+      container.innerHTML = `
+        <div class="bg-emerald-900/30 border border-emerald-400 rounded-3xl p-6 text-left">
+          <div class="flex justify-between text-emerald-400 text-xs mb-4">
+            <span>PREMIUM TIP</span>
+            <span>92% CONFIDENCE</span>
+          </div>
+          <div class="font-bold text-xl">Over 2.5 Goals @ 1.95</div>
+          <div class="text-sm text-emerald-300 mt-1">Liverpool vs Chelsea</div>
+        </div>
+      `;
+    }
+
+    // Theme Toggle
+    function toggleTheme() {
+      const isLight = document.documentElement.classList.toggle('light-mode');
+      const icon = document.getElementById('theme-toggle');
+      icon.innerHTML = isLight 
+        ? '<i class="fa-solid fa-sun"></i>' 
+        : '<i class="fa-solid fa-moon"></i>';
+      localStorage.setItem('theme', isLight ? 'light' : 'dark');
+    }
+
+    // Load saved theme
+    if (localStorage.getItem('theme') === 'light') {
+      document.documentElement.classList.add('light-mode');
+      document.getElementById('theme-toggle').innerHTML = '<i class="fa-solid fa-sun"></i>';
+    }
+
+    // Show Real PayPal Modal
+    function showPayPalModal() {
+      const modal = document.getElementById('paypal-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+
+      // Render real PayPal button
+      const container = document.getElementById('paypal-button-container');
+      container.innerHTML = '';
+      
+      if (typeof paypal !== "undefined") {
+        paypal.Buttons({
+          style: { shape: 'rect', color: 'blue', layout: 'vertical', label: 'subscribe' },
+          createOrder: function(data, actions) {
+            return actions.order.create({
+              purchase_units: [{ amount: { value: '9.99' } }]
+            });
+          },
+          onApprove: function(data, actions) {
+            return actions.order.capture().then(function(details) {
+              hidePayPalModal();
+              unlockPremium();
+            });
+          },
+          onError: function(err) {
+            alert('Payment error. Please try again (use Sandbox mode for testing).');
+            console.error(err);
+          }
+        }).render('#paypal-button-container');
+      } else {
+        alert("PayPal SDK not loaded. Replace YOUR_CLIENT_ID_HERE in the <head> with your real PayPal Client ID.");
+      }
+    }
+
+    function hidePayPalModal() {
+      const modal = document.getElementById('paypal-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function unlockPremium() {
+      document.getElementById('premium-locked').classList.add('hidden');
+      document.getElementById('premium-unlocked').classList.remove('hidden');
+      
+      document.getElementById('premium-badge').innerHTML = `<i class="fa-solid fa-crown"></i> PREMIUM ACTIVE`;
+      document.getElementById('premium-badge').classList.add('bg-amber-500', 'text-white');
+      document.getElementById('sub-status').innerHTML = 'Active until Mar 2027';
+      
+      const toast = document.createElement('div');
+      toast.style.cssText = 'position:fixed; bottom:80px; left:50%; transform:translateX(-50%); background:#10b981; color:white; padding:16px 24px; border-radius:9999px; font-weight:600; box-shadow:0 10px 15px -3px rgb(0 0 0); z-index:99999;';
+      toast.textContent = '✅ Payment successful! Premium unlocked instantly';
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 3500);
+      
+      switchTab(2);
+    }
+
+    function switchTab(tabIndex) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+      
+      if (tabIndex === 0) document.getElementById('screen-home').classList.remove('hidden');
+      if (tabIndex === 1) document.getElementById('screen-free').classList.remove('hidden');
+      if (tabIndex === 2) document.getElementById('screen-premium').classList.remove('hidden');
+      if (tabIndex === 3) document.getElementById('screen-profile').classList.remove('hidden');
+      
+      document.querySelectorAll('nav button').forEach((btn, i) => {
+        if (i === tabIndex) {
+          btn.classList.add('nav-active');
+          btn.classList.remove('text-zinc-400');
+        } else {
+          btn.classList.remove('nav-active');
+          btn.classList.add('text-zinc-400');
+        }
+      });
+    }
+
+    function showMatchDetail(el) {
+      alert("📊 Match details + live score + expert analysis would open here in the full native app.");
+    }
+
+    function toggleNotifications() {
+      alert("🔔 3 new premium tips available for you!");
+    }
+
+    // PWA Service Worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').then(() => {
+          console.log('✅ PWA Service Worker registered - app is now installable!');
+        });
+      });
+    }
+
+    // Initialize App
+    window.onload = function() {
+      renderFreeMatches();
+      renderPremiumMatches();
+      switchTab(0); // Start on Home
+    };
+  </script>
+</body>
+</html>
